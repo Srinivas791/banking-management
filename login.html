@@ -1,0 +1,375 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Apex Horizon Bank - Secure Access Portal</title>
+  <link rel="stylesheet" href="/static/css/style.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
+  <style>
+    body {
+      background: linear-gradient(135deg, #070e1d 0%, #0a192f 50%, #0f1e36 100%);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 24px 16px;
+      min-height: 100vh;
+      color: #fff;
+    }
+    .auth-container {
+      width: 100%;
+      max-width: 520px;
+      background: rgba(15, 26, 48, 0.85);
+      backdrop-filter: blur(16px);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 20px;
+      padding: 36px 32px;
+      box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5), 0 0 40px rgba(37, 99, 235, 0.15);
+    }
+    .auth-brand {
+      text-align: center;
+      margin-bottom: 28px;
+    }
+    .auth-brand .logo-icon {
+      width: 54px;
+      height: 54px;
+      background: linear-gradient(135deg, #38bdf8 0%, #2563eb 100%);
+      border-radius: 14px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 8px 20px rgba(37, 99, 235, 0.4);
+      margin-bottom: 12px;
+    }
+    .auth-brand h2 {
+      font-size: 1.45rem;
+      font-weight: 800;
+      letter-spacing: -0.02em;
+      color: #fff;
+    }
+    .auth-brand p {
+      font-size: 0.82rem;
+      color: #94a3b8;
+    }
+    .role-tabs {
+      display: flex;
+      background: rgba(255, 255, 255, 0.05);
+      border-radius: 10px;
+      padding: 4px;
+      margin-bottom: 24px;
+      gap: 4px;
+      border: 1px solid rgba(255, 255, 255, 0.08);
+    }
+    .role-tab {
+      flex: 1;
+      padding: 8px 6px;
+      text-align: center;
+      font-size: 0.8rem;
+      font-weight: 600;
+      color: #94a3b8;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .role-tab:hover {
+      color: #fff;
+    }
+    .role-tab.active {
+      background: #2563eb;
+      color: #fff;
+      box-shadow: 0 2px 8px rgba(37, 99, 235, 0.3);
+    }
+    .auth-form label {
+      color: #cbd5e1;
+      font-size: 0.82rem;
+      font-weight: 600;
+      margin-bottom: 6px;
+      display: block;
+    }
+    .auth-input-wrap {
+      position: relative;
+      margin-bottom: 18px;
+    }
+    .auth-input {
+      width: 100%;
+      padding: 12px 14px;
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      border-radius: 10px;
+      color: #fff;
+      font-size: 0.9rem;
+      outline: none;
+      transition: all 0.2s;
+    }
+    .auth-input:focus {
+      border-color: #38bdf8;
+      box-shadow: 0 0 0 3px rgba(56, 189, 248, 0.2);
+      background: rgba(255, 255, 255, 0.08);
+    }
+    .password-toggle-btn {
+      position: absolute;
+      right: 12px;
+      top: 50%;
+      transform: translateY(-50%);
+      background: transparent;
+      border: none;
+      color: #94a3b8;
+      cursor: pointer;
+      padding: 4px;
+    }
+    .password-toggle-btn:hover {
+      color: #fff;
+    }
+    .demo-pills {
+      background: rgba(255, 255, 255, 0.03);
+      border: 1px dashed rgba(255, 255, 255, 0.12);
+      border-radius: 10px;
+      padding: 12px 14px;
+      margin-bottom: 22px;
+    }
+    .demo-pills-title {
+      font-size: 0.72rem;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: #38bdf8;
+      font-weight: 700;
+      margin-bottom: 8px;
+    }
+    .demo-btn-group {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+    .demo-btn {
+      padding: 5px 10px;
+      font-size: 0.74rem;
+      font-weight: 600;
+      border-radius: 6px;
+      background: rgba(255, 255, 255, 0.08);
+      color: #cbd5e1;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .demo-btn:hover {
+      background: #2563eb;
+      color: #fff;
+      border-color: #2563eb;
+    }
+    .btn-submit-auth {
+      width: 100%;
+      padding: 12px;
+      background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
+      color: #fff;
+      border: none;
+      border-radius: 10px;
+      font-size: 0.95rem;
+      font-weight: 700;
+      cursor: pointer;
+      box-shadow: 0 4px 14px rgba(37, 99, 235, 0.35);
+      transition: all 0.2s;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+    }
+    .btn-submit-auth:hover {
+      opacity: 0.95;
+      transform: translateY(-1px);
+    }
+    .auth-toggle-link {
+      text-align: center;
+      margin-top: 20px;
+      font-size: 0.85rem;
+      color: #94a3b8;
+    }
+    .auth-toggle-link a {
+      color: #38bdf8;
+      font-weight: 600;
+      cursor: pointer;
+    }
+    .auth-toggle-link a:hover {
+      text-decoration: underline;
+    }
+    .auth-alert {
+      padding: 10px 14px;
+      border-radius: 8px;
+      font-size: 0.82rem;
+      margin-bottom: 16px;
+      display: none;
+    }
+    .auth-alert.error {
+      background: rgba(239, 68, 68, 0.15);
+      border: 1px solid rgba(239, 68, 68, 0.3);
+      color: #fca5a5;
+    }
+    .auth-alert.success {
+      background: rgba(16, 185, 129, 0.15);
+      border: 1px solid rgba(16, 185, 129, 0.3);
+      color: #6ee7b7;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="auth-container">
+    <div class="auth-brand">
+      <div class="logo-icon">
+        <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M3 21h18"/>
+          <path d="M3 10h18"/>
+          <path d="M5 6l7-3 7 3"/>
+          <path d="M4 10v11"/>
+          <path d="M20 10v11"/>
+          <path d="M8 14v3"/>
+          <path d="M12 14v3"/>
+          <path d="M16 14v3"/>
+        </svg>
+      </div>
+      <h2>Apex Horizon National Bank</h2>
+      <p>Simple Banking Management System &bull; Academic Prototype</p>
+    </div>
+
+    <!-- Alert Box -->
+    <div id="authAlert" class="auth-alert"></div>
+
+    <!-- Mode Selector: Login vs Register -->
+    <div id="loginView">
+      <div class="role-tabs">
+        <div class="role-tab active" data-role="customer" onclick="selectRole('customer')">Customer</div>
+        <div class="role-tab" data-role="employee" onclick="selectRole('employee')">Employee</div>
+        <div class="role-tab" data-role="admin" onclick="selectRole('admin')">Admin</div>
+      </div>
+
+      <!-- Academic Demonstration One-Click Autofill -->
+      <div class="demo-pills">
+        <div class="demo-pills-title">🎓 One-Click Demo Credentials:</div>
+        <div class="demo-btn-group">
+          <button type="button" class="demo-btn" onclick="fillDemo('admin')">Demo Admin</button>
+          <button type="button" class="demo-btn" onclick="fillDemo('employee')">Demo Employee</button>
+          <button type="button" class="demo-btn" onclick="fillDemo('customer')">Demo Customer</button>
+        </div>
+      </div>
+
+      <form id="loginForm" class="auth-form" onsubmit="handleLogin(event)">
+        <input type="hidden" id="loginRole" value="customer">
+        
+        <label for="loginEmail">Email Address</label>
+        <div class="auth-input-wrap">
+          <input type="email" id="loginEmail" class="auth-input" placeholder="name@domain.com" required>
+        </div>
+
+        <label for="loginPassword">Password</label>
+        <div class="auth-input-wrap">
+          <input type="password" id="loginPassword" class="auth-input" placeholder="Enter password" required>
+          <button type="button" class="password-toggle-btn" onclick="togglePasswordVisibility('loginPassword', this)">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
+              <circle cx="12" cy="12" r="3"/>
+            </svg>
+          </button>
+        </div>
+
+        <button type="submit" id="loginSubmitBtn" class="btn-submit-auth">
+          <span>Authenticate & Access Dashboard</span>
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <line x1="5" y1="12" x2="19" y2="12"></line>
+            <polyline points="12 5 19 12 12 19"></polyline>
+          </svg>
+        </button>
+      </form>
+
+      <div class="auth-toggle-link">
+        Don't have a banking account? <a onclick="toggleAuthMode('register')">Register as New Customer</a>
+      </div>
+    </div>
+
+    <!-- Registration View -->
+    <div id="registerView" style="display: none;">
+      <h3 style="font-size: 1.15rem; font-weight: 700; margin-bottom: 4px; color: #fff;">Customer Account Registration</h3>
+      <p style="font-size: 0.8rem; color: #94a3b8; margin-bottom: 20px;">Open an instant Savings account with initial demo credit.</p>
+
+      <form id="registerForm" class="auth-form" onsubmit="handleRegister(event)">
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
+          <div>
+            <label for="regFullName">Full Legal Name *</label>
+            <div class="auth-input-wrap">
+              <input type="text" id="regFullName" class="auth-input" placeholder="e.g. Alex Morgan" required>
+            </div>
+          </div>
+          <div>
+            <label for="regPhone">Phone Number *</label>
+            <div class="auth-input-wrap">
+              <input type="tel" id="regPhone" class="auth-input" placeholder="+1-555-0199" required>
+            </div>
+          </div>
+        </div>
+
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
+          <div>
+            <label for="regEmail">Email Address *</label>
+            <div class="auth-input-wrap">
+              <input type="email" id="regEmail" class="auth-input" placeholder="alex@gmail.com" required>
+            </div>
+          </div>
+          <div>
+            <label for="regPassword">Create Password *</label>
+            <div class="auth-input-wrap">
+              <input type="password" id="regPassword" class="auth-input" placeholder="Min 6 characters" required>
+              <button type="button" class="password-toggle-btn" onclick="togglePasswordVisibility('regPassword', this)">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
+                  <circle cx="12" cy="12" r="3"/>
+                </svg>
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <div style="display: grid; grid-template-columns: 2fr 1fr; gap: 12px;">
+          <div>
+            <label for="regAddress">Residential Address</label>
+            <div class="auth-input-wrap">
+              <input type="text" id="regAddress" class="auth-input" placeholder="123 Bank St, Apt 4B">
+            </div>
+          </div>
+          <div>
+            <label for="regCity">City</label>
+            <div class="auth-input-wrap">
+              <input type="text" id="regCity" class="auth-input" placeholder="Chicago">
+            </div>
+          </div>
+        </div>
+
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
+          <div>
+            <label for="regOccupation">Occupation</label>
+            <div class="auth-input-wrap">
+              <input type="text" id="regOccupation" class="auth-input" placeholder="Software Engineer">
+            </div>
+          </div>
+          <div>
+            <label for="regDeposit">Initial Deposit ($) *</label>
+            <div class="auth-input-wrap">
+              <input type="number" id="regDeposit" class="auth-input" min="500" step="50" value="1000" required>
+            </div>
+          </div>
+        </div>
+
+        <button type="submit" id="registerSubmitBtn" class="btn-submit-auth">
+          <span>Create Account & Generate Bank Number</span>
+        </button>
+      </form>
+
+      <div class="auth-toggle-link">
+        Already have an account? <a onclick="toggleAuthMode('login')">Return to Login</a>
+      </div>
+    </div>
+
+  </div>
+
+  <script src="/static/js/auth.js"></script>
+</body>
+</html>

@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Account Statement - Apex Horizon Bank</title>
+  <link rel="stylesheet" href="/static/css/style.css">
+  <link rel="stylesheet" href="/static/css/print.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
+  <style>
+    .statement-actions-bar {
+      max-width: 850px;
+      margin: 20px auto 0;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 12px 20px;
+      background: #ffffff;
+      border-radius: 10px;
+      border: 1px solid var(--border-light);
+    }
+  </style>
+</head>
+<body style="background: #f1f5f9; padding-bottom: 50px;">
+
+  <div class="statement-actions-bar no-print">
+    <a href="/" class="btn btn-outline btn-sm">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <line x1="19" y1="12" x2="5" y2="12"></line>
+        <polyline points="12 19 5 12 12 5"></polyline>
+      </svg>
+      Back to Dashboard
+    </a>
+    <div style="display: flex; gap: 10px;">
+      <button class="btn btn-outline btn-sm" onclick="downloadCSV()">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+          <polyline points="7 10 12 15 17 10"></polyline>
+          <line x1="12" y1="15" x2="12" y2="3"></line>
+        </svg>
+        Download CSV
+      </button>
+      <button class="btn btn-primary btn-sm" onclick="window.print()">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <polyline points="6 9 6 2 18 2 18 9"></polyline>
+          <path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"></path>
+          <rect x="6" y="14" width="12" height="8"></rect>
+        </svg>
+        Print Statement
+      </button>
+    </div>
+  </div>
+
+  <div class="statement-wrapper" id="statementContainer">
+    <div class="statement-header">
+      <div class="bank-brand">
+        <div class="bank-logo-icon">
+          <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M3 21h18"/>
+            <path d="M3 10h18"/>
+            <path d="M5 6l7-3 7 3"/>
+            <path d="M4 10v11"/>
+            <path d="M20 10v11"/>
+          </svg>
+        </div>
+        <div class="bank-title">
+          <h1>Apex Horizon National Bank</h1>
+          <p>Global Retail & Commercial Banking Services</p>
+        </div>
+      </div>
+      <div class="statement-badge">
+        <h2>Official Account Statement</h2>
+        <p id="generatedDate">Generated: Loading...</p>
+      </div>
+    </div>
+
+    <div class="statement-info-grid">
+      <div class="info-column">
+        <h4>Account Holder Details</h4>
+        <div class="info-item">
+          <span class="label">Customer Name:</span>
+          <span class="val" id="custName">-</span>
+        </div>
+        <div class="info-item">
+          <span class="label">Registered Email:</span>
+          <span class="val" id="custEmail">-</span>
+        </div>
+        <div class="info-item">
+          <span class="label">Phone:</span>
+          <span class="val" id="custPhone">-</span>
+        </div>
+        <div class="info-item">
+          <span class="label">Address:</span>
+          <span class="val" id="custAddress">-</span>
+        </div>
+      </div>
+      <div class="info-column">
+        <h4>Account Information</h4>
+        <div class="info-item">
+          <span class="label">Account Number:</span>
+          <span class="val" style="font-family: var(--font-mono); color: #1e40af;" id="accNumber">-</span>
+        </div>
+        <div class="info-item">
+          <span class="label">Account Type:</span>
+          <span class="val" id="accType">-</span>
+        </div>
+        <div class="info-item">
+          <span class="label">Account Status:</span>
+          <span class="val" id="accStatus">-</span>
+        </div>
+        <div class="info-item">
+          <span class="label">Branch Code:</span>
+          <span class="val">AHNB-IL0104</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="statement-summary-bar">
+      <div class="summary-metric">
+        <div class="title">Current Available Balance</div>
+        <div class="amount" id="currentBalance">$0.00</div>
+      </div>
+      <div class="summary-metric">
+        <div class="title">Total Transactions Recorded</div>
+        <div class="amount" id="totalTxnCount">0</div>
+      </div>
+      <div class="summary-metric">
+        <div class="title">Currency</div>
+        <div class="amount">USD ($)</div>
+      </div>
+    </div>
+
+    <h4 style="margin-bottom: 12px; font-size: 0.95rem; font-weight: 700; color: #0a192f;">Transaction Ledger</h4>
+    <div class="table-responsive">
+      <table class="custom-table" style="font-size: 0.8rem;">
+        <thead>
+          <tr>
+            <th>Reference ID</th>
+            <th>Date & Time</th>
+            <th>Type</th>
+            <th>Description</th>
+            <th>Debit ($)</th>
+            <th>Credit ($)</th>
+            <th>Balance ($)</th>
+          </tr>
+        </thead>
+        <tbody id="statementTxnBody">
+          <tr><td colspan="7" style="text-align: center; padding: 20px;">Loading transaction records...</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="statement-footer">
+      <div>
+        <p><strong>Notice:</strong> This is a computer-generated bank account statement.</p>
+        <p>Simple Banking Management System &bull; B.Tech Software Engineering Project Demo</p>
+      </div>
+      <div class="seal-sign-box">
+        <p style="margin: 0; font-size: 0.72rem; text-transform: uppercase; font-weight: 700; color: #1e3a8a;">Apex Horizon Bank</p>
+        <span style="font-size: 0.68rem; color: #64748b;">Authorized Signatory</span>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    let currentAccNum = '';
+
+    async function loadStatement() {
+      const urlParams = new URLSearchParams(window.location.search);
+      currentAccNum = urlParams.get('account') || '';
+
+      if (!currentAccNum) {
+        alert('Please specify an account number in the URL.');
+        window.location.href = '/';
+        return;
+      }
+
+      try {
+        const res = await fetch(`/api/statement/${currentAccNum}`);
+        const data = await res.json();
+
+        if (!data.success) {
+          alert(data.message || 'Error loading statement.');
+          window.location.href = '/';
+          return;
+        }
+
+        const acc = data.account;
+        document.getElementById('generatedDate').textContent = 'Generated: ' + data.generated_at;
+        document.getElementById('custName').textContent = acc.full_name;
+        document.getElementById('custEmail').textContent = acc.email;
+        document.getElementById('custPhone').textContent = acc.phone;
+        document.getElementById('custAddress').textContent = `${acc.address || 'N/A'}, ${acc.city || ''} ${acc.state || ''}`;
+
+        document.getElementById('accNumber').textContent = acc.account_number;
+        document.getElementById('accType').textContent = acc.account_type + ' Account';
+        document.getElementById('accStatus').textContent = acc.status.toUpperCase();
+        document.getElementById('currentBalance').textContent = '$' + Number(acc.balance).toLocaleString('en-US', { minimumFractionDigits: 2 });
+        document.getElementById('totalTxnCount').textContent = data.transactions.length;
+
+        const tbody = document.getElementById('statementTxnBody');
+        if (data.transactions.length === 0) {
+          tbody.innerHTML = '<tr><td colspan="7" style="text-align: center; padding: 20px;">No transaction activity recorded yet.</td></tr>';
+          return;
+        }
+
+        let html = '';
+        data.transactions.forEach(t => {
+          let debit = '-';
+          let credit = '-';
+          const amt = '$' + Number(t.amount).toLocaleString('en-US', { minimumFractionDigits: 2 });
+
+          if (t.transaction_type === 'WITHDRAWAL') {
+            debit = amt;
+          } else if (t.transaction_type === 'DEPOSIT') {
+            credit = amt;
+          } else if (t.transaction_type === 'TRANSFER') {
+            if (t.from_account_number === currentAccNum) {
+              debit = amt;
+            } else {
+              credit = amt;
+            }
+          }
+
+          html += `
+            <tr>
+              <td style="font-family: monospace; font-weight: 600;">${t.transaction_ref}</td>
+              <td>${t.created_at}</td>
+              <td><strong>${t.transaction_type}</strong></td>
+              <td>${t.description || '-'}</td>
+              <td style="color: #dc2626; font-weight: 600;">${debit}</td>
+              <td style="color: #059669; font-weight: 600;">${credit}</td>
+              <td style="font-weight: 700;">$${Number(t.balance_after).toLocaleString('en-US', { minimumFractionDigits: 2 })}</td>
+            </tr>
+          `;
+        });
+        tbody.innerHTML = html;
+
+      } catch (err) {
+        console.error('Error fetching statement:', err);
+      }
+    }
+
+    function downloadCSV() {
+      if (currentAccNum) {
+        window.location.href = `/api/statement/${currentAccNum}/download-csv`;
+      }
+    }
+
+    window.addEventListener('DOMContentLoaded', loadStatement);
+  </script>
+</body>
+</html>

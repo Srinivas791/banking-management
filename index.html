@@ -1,0 +1,795 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Simple Banking Management System | Dashboard</title>
+  <link rel="stylesheet" href="/static/css/style.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
+  <!-- Chart.js for interactive analytics -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+
+  <!-- Toast Notification System -->
+  <div class="toast-container" id="toastContainer"></div>
+
+  <div class="app-layout">
+    <!-- Sidebar Navigation -->
+    <aside class="sidebar" id="sidebar">
+      <div class="sidebar-header">
+        <div class="brand-icon">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M3 21h18"/>
+            <path d="M3 10h18"/>
+            <path d="M5 6l7-3 7 3"/>
+            <path d="M4 10v11"/>
+            <path d="M20 10v11"/>
+            <path d="M8 14v3"/>
+            <path d="M12 14v3"/>
+            <path d="M16 14v3"/>
+          </svg>
+        </div>
+        <div class="brand-info">
+          <h1>Apex Horizon</h1>
+          <span>Simple Banking System</span>
+        </div>
+      </div>
+
+      <!-- Active User Profile Pill -->
+      <div class="sidebar-user">
+        <div class="user-avatar" id="userAvatar">U</div>
+        <div class="user-details">
+          <div class="user-name" id="userNameDisplay">Loading...</div>
+          <span class="role-badge" id="userRoleBadge">User</span>
+        </div>
+      </div>
+
+      <!-- Navigation Links -->
+      <nav class="sidebar-nav">
+        <div class="nav-section-title">Navigation</div>
+        <a class="nav-link active" onclick="switchView('dashboardView', this)">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><rect x="3" y="3" width="7" height="7"></rect><rect x="14" y="3" width="7" height="7"></rect><rect x="14" y="14" width="7" height="7"></rect><rect x="3" y="14" width="7" height="7"></rect></svg>
+          Dashboard
+        </a>
+
+        <!-- Customers (Admin & Employee only) -->
+        <a class="nav-link staff-only" onclick="switchView('customersView', this)">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg>
+          Customers
+        </a>
+
+        <a class="nav-link" onclick="switchView('accountsView', this)">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><rect x="1" y="4" width="22" height="16" rx="2" ry="2"></rect><line x1="1" y1="10" x2="23" y2="10"></line></svg>
+          Accounts
+        </a>
+
+        <a class="nav-link" onclick="switchView('operationsView', this)">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
+          Banking Operations
+        </a>
+
+        <a class="nav-link" onclick="switchView('transactionsView', this)">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><line x1="8" y1="6" x2="21" y2="6"></line><line x1="8" y1="12" x2="21" y2="12"></line><line x1="8" y1="18" x2="21" y2="18"></line><line x1="3" y1="6" x2="3.01" y2="6"></line><line x1="3" y1="12" x2="3.01" y2="12"></line><line x1="3" y1="18" x2="3.01" y2="18"></line></svg>
+          Transaction History
+        </a>
+
+        <!-- Admin Only Section -->
+        <div class="nav-section-title admin-only">Administration</div>
+        <a class="nav-link admin-only" onclick="switchView('adminView', this)">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path></svg>
+          Admin Panel
+        </a>
+      </nav>
+
+      <div class="sidebar-footer">
+        <button class="btn-logout-sidebar" onclick="handleLogout()">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path><polyline points="16 17 21 12 16 7"></polyline><line x1="21" y1="12" x2="9" y2="12"></line></svg>
+          Secure Sign Out
+        </button>
+      </div>
+    </aside>
+
+    <!-- Main Application Area -->
+    <main class="main-wrapper">
+      <!-- Top Header -->
+      <header class="top-header">
+        <div class="header-left">
+          <button class="menu-toggle-btn" onclick="toggleSidebar()">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="12" x2="21" y2="12"></line><line x1="3" y1="6" x2="21" y2="6"></line><line x1="3" y1="18" x2="21" y2="18"></line></svg>
+          </button>
+          <div class="header-title-box">
+            <h2 id="viewHeading">Dashboard Overview</h2>
+            <span id="viewSubheading">Real-time financial status & system telemetry</span>
+          </div>
+        </div>
+        <div class="header-right">
+          <button class="btn-quick-action" onclick="switchView('operationsView')">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+            <span>Quick Operation</span>
+          </button>
+        </div>
+      </header>
+
+      <!-- Content Views Body -->
+      <div class="content-body">
+
+        <!-- ==============================================
+             1. DASHBOARD VIEW
+             ============================================== -->
+        <section id="dashboardView" class="view-section active">
+          <!-- Metric KPI Grid -->
+          <div class="stats-grid" id="statsGrid">
+            <!-- Dynamically populated based on role -->
+          </div>
+
+          <!-- Charts Grid -->
+          <div class="charts-grid">
+            <div class="card">
+              <div class="card-header">
+                <div class="card-title">
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="20" x2="18" y2="10"></line><line x1="12" y1="20" x2="12" y2="4"></line><line x1="6" y1="20" x2="6" y2="14"></line></svg>
+                  Monthly Financial Trends
+                </div>
+                <span style="font-size: 0.75rem; color: var(--text-muted);">Deposits vs Withdrawals ($)</span>
+              </div>
+              <div style="height: 280px; position: relative;">
+                <canvas id="monthlyTrendChart"></canvas>
+              </div>
+            </div>
+
+            <div class="card">
+              <div class="card-header">
+                <div class="card-title">
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21.21 15.89A10 10 0 1 1 8 2.83"></path><path d="M22 12A10 10 0 0 0 12 2v10z"></path></svg>
+                  Account / Flow Distribution
+                </div>
+              </div>
+              <div style="height: 280px; position: relative;">
+                <canvas id="distributionChart"></canvas>
+              </div>
+            </div>
+          </div>
+
+          <!-- Recent Transactions Card -->
+          <div class="card">
+            <div class="card-header">
+              <div class="card-title">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"></polyline></svg>
+                Recent Transaction Activity
+              </div>
+              <button class="btn btn-outline btn-sm" onclick="switchView('transactionsView')">View Full Ledger</button>
+            </div>
+            <div class="table-responsive">
+              <table class="custom-table">
+                <thead>
+                  <tr>
+                    <th>Reference</th>
+                    <th>Account</th>
+                    <th>Type</th>
+                    <th>Amount</th>
+                    <th>Date & Time</th>
+                    <th>Status</th>
+                    <th>Description</th>
+                  </tr>
+                </thead>
+                <tbody id="dashboardTxnBody">
+                  <tr><td colspan="7" style="text-align: center; padding: 20px;">Loading transactions...</td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </section>
+
+        <!-- ==============================================
+             2. CUSTOMER MANAGEMENT VIEW (Staff/Admin)
+             ============================================== -->
+        <section id="customersView" class="view-section">
+          <div class="card">
+            <div class="card-header">
+              <div class="card-title">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle></svg>
+                Customer Directory
+              </div>
+              <button class="btn btn-primary btn-sm" onclick="openAddCustomerModal()">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+                Add New Customer
+              </button>
+            </div>
+
+            <div style="display: flex; gap: 12px; margin-bottom: 20px; flex-wrap: wrap;">
+              <input type="text" id="customerSearchInput" class="form-control" style="max-width: 380px;" placeholder="Search customers by name, email, phone, ID..." oninput="handleCustomerSearch()">
+            </div>
+
+            <div class="table-responsive">
+              <table class="custom-table">
+                <thead>
+                  <tr>
+                    <th>ID</th>
+                    <th>Full Name</th>
+                    <th>Email Address</th>
+                    <th>Phone</th>
+                    <th>Accounts</th>
+                    <th>Total Funds ($)</th>
+                    <th>Status</th>
+                    <th>Actions</th>
+                  </tr>
+                </thead>
+                <tbody id="customersTableBody">
+                  <tr><td colspan="8" style="text-align: center; padding: 20px;">Loading customers...</td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </section>
+
+        <!-- ==============================================
+             3. ACCOUNT MANAGEMENT VIEW
+             ============================================== -->
+        <section id="accountsView" class="view-section">
+          <div class="card">
+            <div class="card-header">
+              <div class="card-title">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="1" y="4" width="22" height="16" rx="2" ry="2"></rect><line x1="1" y1="10" x2="23" y2="10"></line></svg>
+                Bank Accounts Directory
+              </div>
+              <button class="btn btn-primary btn-sm staff-only" onclick="openCreateAccountModal()">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+                Open New Account
+              </button>
+            </div>
+
+            <div style="display: flex; gap: 12px; margin-bottom: 20px; flex-wrap: wrap;">
+              <input type="text" id="accountSearchInput" class="form-control" style="max-width: 320px;" placeholder="Search account number or holder..." oninput="handleAccountSearch()">
+              <select id="accountTypeFilter" class="form-control" style="max-width: 180px;" onchange="handleAccountSearch()">
+                <option value="">All Account Types</option>
+                <option value="Savings">Savings Account</option>
+                <option value="Current">Current Account</option>
+              </select>
+              <select id="accountStatusFilter" class="form-control" style="max-width: 180px;" onchange="handleAccountSearch()">
+                <option value="">All Statuses</option>
+                <option value="active">Active</option>
+                <option value="frozen">Frozen</option>
+                <option value="closed">Closed</option>
+              </select>
+            </div>
+
+            <div class="table-responsive">
+              <table class="custom-table">
+                <thead>
+                  <tr>
+                    <th>Account Number</th>
+                    <th>Account Holder</th>
+                    <th>Account Type</th>
+                    <th>Balance ($)</th>
+                    <th>Status</th>
+                    <th>Created Date</th>
+                    <th>Actions</th>
+                  </tr>
+                </thead>
+                <tbody id="accountsTableBody">
+                  <tr><td colspan="7" style="text-align: center; padding: 20px;">Loading accounts...</td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </section>
+
+        <!-- ==============================================
+             4. BANKING OPERATIONS (Deposit, Withdraw, Transfer)
+             ============================================== -->
+        <section id="operationsView" class="view-section">
+          <div style="display: flex; gap: 10px; margin-bottom: 24px; border-bottom: 1px solid var(--border-light); padding-bottom: 12px;">
+            <button class="btn btn-outline op-tab-btn active" onclick="switchOperationTab('depositTab', this)">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="19" x2="12" y2="5"></line><polyline points="5 12 12 5 19 12"></polyline></svg>
+              Funds Deposit
+            </button>
+            <button class="btn btn-outline op-tab-btn" onclick="switchOperationTab('withdrawTab', this)">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"></line><polyline points="19 12 12 19 5 12"></polyline></svg>
+              Funds Withdrawal
+            </button>
+            <button class="btn btn-outline op-tab-btn" onclick="switchOperationTab('transferTab', this)">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="17 1 21 5 17 9"></polyline><path d="M3 11V9a4 4 0 0 1 4-4h14"></path><polyline points="7 23 3 19 7 15"></polyline><path d="M21 13v2a4 4 0 0 1-4 4H3"></path></svg>
+              Inter-Account Fund Transfer
+            </button>
+          </div>
+
+          <!-- Deposit Tab -->
+          <div id="depositTab" class="op-tab-content">
+            <div class="card" style="max-width: 650px; margin: 0 auto;">
+              <div class="card-header">
+                <div class="card-title">
+                  <span class="stat-icon-wrap emerald" style="width: 36px; height: 36px; margin-right: 8px;">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="19" x2="12" y2="5"></line><polyline points="5 12 12 5 19 12"></polyline></svg>
+                  </span>
+                  Deposit Funds into Account
+                </div>
+              </div>
+
+              <form onsubmit="handleDepositSubmit(event)">
+                <div class="form-group">
+                  <label for="depositAccountSelect">Target Account Number *</label>
+                  <select id="depositAccountSelect" class="form-control" required onchange="updateAccountBalanceHint(this.value, 'depositBalHint')">
+                    <option value="">-- Select Target Account --</option>
+                  </select>
+                  <span id="depositBalHint" style="font-size: 0.78rem; color: var(--accent-emerald); margin-top: 4px; font-weight: 600;"></span>
+                </div>
+
+                <div class="form-group">
+                  <label for="depositAmount">Deposit Amount ($) *</label>
+                  <input type="number" id="depositAmount" class="form-control" min="1" step="0.01" placeholder="e.g. 500.00" required>
+                  <div class="chips-container">
+                    <button type="button" class="chip-btn" onclick="setOpAmount('depositAmount', 100)">+$100</button>
+                    <button type="button" class="chip-btn" onclick="setOpAmount('depositAmount', 500)">+$500</button>
+                    <button type="button" class="chip-btn" onclick="setOpAmount('depositAmount', 1000)">+$1,000</button>
+                    <button type="button" class="chip-btn" onclick="setOpAmount('depositAmount', 5000)">+$5,000</button>
+                  </div>
+                </div>
+
+                <div class="form-group">
+                  <label for="depositDesc">Transaction Remarks / Description</label>
+                  <input type="text" id="depositDesc" class="form-control" placeholder="Salary, Cash Deposit, Settlement...">
+                </div>
+
+                <button type="submit" class="btn btn-success" style="width: 100%; margin-top: 12px;">
+                  Confirm & Process Deposit
+                </button>
+              </form>
+            </div>
+          </div>
+
+          <!-- Withdrawal Tab -->
+          <div id="withdrawTab" class="op-tab-content" style="display: none;">
+            <div class="card" style="max-width: 650px; margin: 0 auto;">
+              <div class="card-header">
+                <div class="card-title">
+                  <span class="stat-icon-wrap rose" style="width: 36px; height: 36px; margin-right: 8px;">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"></line><polyline points="19 12 12 19 5 12"></polyline></svg>
+                  </span>
+                  Withdraw Funds from Account
+                </div>
+              </div>
+
+              <form onsubmit="handleWithdrawSubmit(event)">
+                <div class="form-group">
+                  <label for="withdrawAccountSelect">Source Account Number *</label>
+                  <select id="withdrawAccountSelect" class="form-control" required onchange="updateAccountBalanceHint(this.value, 'withdrawBalHint')">
+                    <option value="">-- Select Source Account --</option>
+                  </select>
+                  <span id="withdrawBalHint" style="font-size: 0.78rem; color: var(--blue-primary); margin-top: 4px; font-weight: 600;"></span>
+                </div>
+
+                <div class="form-group">
+                  <label for="withdrawAmount">Withdrawal Amount ($) *</label>
+                  <input type="number" id="withdrawAmount" class="form-control" min="1" step="0.01" placeholder="e.g. 200.00" required>
+                  <div class="chips-container">
+                    <button type="button" class="chip-btn" onclick="setOpAmount('withdrawAmount', 100)">$100</button>
+                    <button type="button" class="chip-btn" onclick="setOpAmount('withdrawAmount', 200)">$200</button>
+                    <button type="button" class="chip-btn" onclick="setOpAmount('withdrawAmount', 500)">$500</button>
+                    <button type="button" class="chip-btn" onclick="setOpAmount('withdrawAmount', 1000)">$1,000</button>
+                  </div>
+                </div>
+
+                <div class="form-group">
+                  <label for="withdrawDesc">Reason / Purpose</label>
+                  <input type="text" id="withdrawDesc" class="form-control" placeholder="ATM Cash, Utilities, Shopping...">
+                </div>
+
+                <button type="submit" class="btn btn-danger" style="width: 100%; margin-top: 12px;">
+                  Authorize & Process Withdrawal
+                </button>
+              </form>
+            </div>
+          </div>
+
+          <!-- Fund Transfer Tab -->
+          <div id="transferTab" class="op-tab-content" style="display: none;">
+            <div class="card" style="max-width: 650px; margin: 0 auto;">
+              <div class="card-header">
+                <div class="card-title">
+                  <span class="stat-icon-wrap blue" style="width: 36px; height: 36px; margin-right: 8px;">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="17 1 21 5 17 9"></polyline><path d="M3 11V9a4 4 0 0 1 4-4h14"></path><polyline points="7 23 3 19 7 15"></polyline><path d="M21 13v2a4 4 0 0 1-4 4H3"></path></svg>
+                  </span>
+                  Instant Inter-Account Fund Transfer
+                </div>
+              </div>
+
+              <form onsubmit="handleTransferSubmit(event)">
+                <div class="form-group">
+                  <label for="transferFromSelect">Sender Account (Debit) *</label>
+                  <select id="transferFromSelect" class="form-control" required onchange="updateAccountBalanceHint(this.value, 'transferFromBalHint')">
+                    <option value="">-- Select Sender Account --</option>
+                  </select>
+                  <span id="transferFromBalHint" style="font-size: 0.78rem; color: var(--blue-primary); margin-top: 4px; font-weight: 600;"></span>
+                </div>
+
+                <div class="form-group">
+                  <label for="transferToInput">Receiver Account Number (Credit) *</label>
+                  <div style="display: flex; gap: 8px;">
+                    <input type="text" id="transferToInput" class="form-control" placeholder="Enter 10-digit account (e.g. 1001005678)" required onblur="verifyReceiverAccount(this.value)">
+                    <button type="button" class="btn btn-outline btn-sm" onclick="verifyReceiverAccount(document.getElementById('transferToInput').value)">Verify</button>
+                  </div>
+                  <span id="transferReceiverHint" style="font-size: 0.78rem; color: var(--text-muted); margin-top: 4px; font-weight: 600;"></span>
+                </div>
+
+                <div class="form-group">
+                  <label for="transferAmount">Transfer Amount ($) *</label>
+                  <input type="number" id="transferAmount" class="form-control" min="1" step="0.01" placeholder="e.g. 350.00" required>
+                  <div class="chips-container">
+                    <button type="button" class="chip-btn" onclick="setOpAmount('transferAmount', 100)">$100</button>
+                    <button type="button" class="chip-btn" onclick="setOpAmount('transferAmount', 500)">$500</button>
+                    <button type="button" class="chip-btn" onclick="setOpAmount('transferAmount', 1200)">$1,200</button>
+                    <button type="button" class="chip-btn" onclick="setOpAmount('transferAmount', 2500)">$2,500</button>
+                  </div>
+                </div>
+
+                <div class="form-group">
+                  <label for="transferDesc">Payment Purpose / Remarks</label>
+                  <input type="text" id="transferDesc" class="form-control" placeholder="Rent, Invoicing, Gift, Tuition...">
+                </div>
+
+                <button type="submit" class="btn btn-primary" style="width: 100%; margin-top: 12px;">
+                  Execute Atomic Transfer
+                </button>
+              </form>
+            </div>
+          </div>
+        </section>
+
+        <!-- ==============================================
+             5. TRANSACTION HISTORY VIEW
+             ============================================== -->
+        <section id="transactionsView" class="view-section">
+          <div class="card">
+            <div class="card-header">
+              <div class="card-title">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="8" y1="6" x2="21" y2="6"></line><line x1="8" y1="12" x2="21" y2="12"></line><line x1="8" y1="18" x2="21" y2="18"></line></svg>
+                Master Transaction Ledger
+              </div>
+              <div style="display: flex; gap: 8px;">
+                <button class="btn btn-outline btn-sm" onclick="exportLedgerCSV()">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
+                  Export CSV
+                </button>
+                <button class="btn btn-primary btn-sm" onclick="openStatementModal()">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 6 2 18 2 18 9"></polyline><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"></path><rect x="6" y="14" width="12" height="8"></rect></svg>
+                  Official Statement
+                </button>
+              </div>
+            </div>
+
+            <!-- Filters -->
+            <div style="display: flex; gap: 12px; margin-bottom: 20px; flex-wrap: wrap;">
+              <input type="text" id="txnSearchInput" class="form-control" style="max-width: 300px;" placeholder="Search reference, description, account..." oninput="handleTransactionSearch()">
+              <select id="txnTypeFilter" class="form-control" style="max-width: 180px;" onchange="handleTransactionSearch()">
+                <option value="">All Types</option>
+                <option value="DEPOSIT">Deposit</option>
+                <option value="WITHDRAWAL">Withdrawal</option>
+                <option value="TRANSFER">Transfer</option>
+              </select>
+            </div>
+
+            <div class="table-responsive">
+              <table class="custom-table">
+                <thead>
+                  <tr>
+                    <th>Reference ID</th>
+                    <th>Date & Time</th>
+                    <th>Type</th>
+                    <th>From Account</th>
+                    <th>To Account</th>
+                    <th>Amount ($)</th>
+                    <th>Balance After ($)</th>
+                    <th>Status</th>
+                    <th>Description</th>
+                  </tr>
+                </thead>
+                <tbody id="transactionsTableBody">
+                  <tr><td colspan="9" style="text-align: center; padding: 20px;">Loading ledger...</td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </section>
+
+        <!-- ==============================================
+             6. ADMIN PANEL VIEW
+             ============================================== -->
+        <section id="adminView" class="view-section">
+          <div style="display: flex; gap: 10px; margin-bottom: 24px; border-bottom: 1px solid var(--border-light); padding-bottom: 12px;">
+            <button class="btn btn-outline admin-tab-btn active" onclick="switchAdminTab('employeesTab', this)">Staff Management</button>
+            <button class="btn btn-outline admin-tab-btn" onclick="switchAdminTab('auditTab', this)">Audit Logs</button>
+            <button class="btn btn-outline admin-tab-btn" onclick="switchAdminTab('reportsTab', this)">System Intelligence Reports</button>
+          </div>
+
+          <!-- Staff Tab -->
+          <div id="employeesTab" class="admin-tab-content">
+            <div class="card">
+              <div class="card-header">
+                <div class="card-title">Banking Staff Directory</div>
+                <button class="btn btn-primary btn-sm" onclick="openAddEmployeeModal()">Add Staff Member</button>
+              </div>
+              <div class="table-responsive">
+                <table class="custom-table">
+                  <thead>
+                    <tr>
+                      <th>ID</th>
+                      <th>Staff Name</th>
+                      <th>Email</th>
+                      <th>Phone</th>
+                      <th>Role</th>
+                      <th>Status</th>
+                      <th>Action</th>
+                    </tr>
+                  </thead>
+                  <tbody id="employeesTableBody">
+                    <tr><td colspan="7" style="text-align: center; padding: 20px;">Loading staff...</td></tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+
+          <!-- Audit Log Tab -->
+          <div id="auditTab" class="admin-tab-content" style="display: none;">
+            <div class="card">
+              <div class="card-header">
+                <div class="card-title">System Activity & Security Audit Logs</div>
+                <button class="btn btn-outline btn-sm" onclick="loadAuditLogs()">Refresh Logs</button>
+              </div>
+              <div class="table-responsive">
+                <table class="custom-table">
+                  <thead>
+                    <tr>
+                      <th>ID</th>
+                      <th>Timestamp</th>
+                      <th>Action</th>
+                      <th>Triggered By</th>
+                      <th>IP Address</th>
+                      <th>Details</th>
+                    </tr>
+                  </thead>
+                  <tbody id="auditTableBody">
+                    <tr><td colspan="6" style="text-align: center; padding: 20px;">Loading audit logs...</td></tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+
+          <!-- Reports Tab -->
+          <div id="reportsTab" class="admin-tab-content" style="display: none;">
+            <div class="card">
+              <div class="card-header">
+                <div class="card-title">Top Capital Accounts (High Net Worth)</div>
+              </div>
+              <div class="table-responsive">
+                <table class="custom-table">
+                  <thead>
+                    <tr>
+                      <th>Account Number</th>
+                      <th>Customer Name</th>
+                      <th>Type</th>
+                      <th>Balance ($)</th>
+                    </tr>
+                  </thead>
+                  <tbody id="topAccountsBody"></tbody>
+                </table>
+              </div>
+            </div>
+
+            <div class="card">
+              <div class="card-header">
+                <div class="card-title">Largest Transactions Recorded</div>
+              </div>
+              <div class="table-responsive">
+                <table class="custom-table">
+                  <thead>
+                    <tr>
+                      <th>Reference ID</th>
+                      <th>Type</th>
+                      <th>Amount ($)</th>
+                      <th>Date</th>
+                      <th>Description</th>
+                    </tr>
+                  </thead>
+                  <tbody id="largeTxnsBody"></tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </section>
+
+      </div>
+    </main>
+  </div>
+
+  <!-- ==============================================
+       MODALS
+       ============================================== -->
+
+  <!-- Add Customer Modal -->
+  <div class="modal-overlay" id="addCustomerModal">
+    <div class="modal-box">
+      <div class="modal-header">
+        <h3>Create New Customer Profile</h3>
+        <button class="modal-close-btn" onclick="closeModal('addCustomerModal')">&times;</button>
+      </div>
+      <form onsubmit="handleAddCustomerSubmit(event)">
+        <div class="modal-body">
+          <div class="form-grid">
+            <div class="form-group">
+              <label>Full Name *</label>
+              <input type="text" id="newCustName" class="form-control" required placeholder="Legal full name">
+            </div>
+            <div class="form-group">
+              <label>Phone Number *</label>
+              <input type="tel" id="newCustPhone" class="form-control" required placeholder="+1-555-0100">
+            </div>
+          </div>
+
+          <div class="form-grid">
+            <div class="form-group">
+              <label>Email Address *</label>
+              <input type="email" id="newCustEmail" class="form-control" required placeholder="customer@domain.com">
+            </div>
+            <div class="form-group">
+              <label>Temporary Password *</label>
+              <input type="text" id="newCustPassword" class="form-control" value="Customer@123" required>
+            </div>
+          </div>
+
+          <div class="form-grid">
+            <div class="form-group">
+              <label>Residential Address</label>
+              <input type="text" id="newCustAddress" class="form-control" placeholder="Street address">
+            </div>
+            <div class="form-group">
+              <label>City & State</label>
+              <input type="text" id="newCustCity" class="form-control" placeholder="City, State">
+            </div>
+          </div>
+
+          <div class="form-grid">
+            <div class="form-group">
+              <label>Initial Account Type</label>
+              <select id="newCustAccType" class="form-control">
+                <option value="Savings">Savings Account</option>
+                <option value="Current">Current Account</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label>Initial Opening Deposit ($)</label>
+              <input type="number" id="newCustDeposit" class="form-control" min="500" step="50" value="1000">
+            </div>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-outline" onclick="closeModal('addCustomerModal')">Cancel</button>
+          <button type="submit" class="btn btn-primary">Create Customer & Open Account</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Customer Details Modal -->
+  <div class="modal-overlay" id="customerDetailsModal">
+    <div class="modal-box" style="max-width: 680px;">
+      <div class="modal-header">
+        <h3 id="detailCustName">Customer Profile</h3>
+        <button class="modal-close-btn" onclick="closeModal('customerDetailsModal')">&times;</button>
+      </div>
+      <div class="modal-body" id="customerDetailsContent">
+        <!-- Rendered via JS -->
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-outline" onclick="closeModal('customerDetailsModal')">Close</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Create Account for Customer Modal -->
+  <div class="modal-overlay" id="createAccountModal">
+    <div class="modal-box">
+      <div class="modal-header">
+        <h3>Open New Bank Account</h3>
+        <button class="modal-close-btn" onclick="closeModal('createAccountModal')">&times;</button>
+      </div>
+      <form onsubmit="handleCreateAccountSubmit(event)">
+        <div class="modal-body">
+          <div class="form-group">
+            <label>Select Customer *</label>
+            <select id="newAccCustomerSelect" class="form-control" required>
+              <option value="">-- Choose Customer --</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Account Type *</label>
+            <select id="newAccTypeSelect" class="form-control" required>
+              <option value="Savings">Savings Account (Standard interest)</option>
+              <option value="Current">Current Account (Business/Checking)</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Initial Deposit ($) *</label>
+            <input type="number" id="newAccDeposit" class="form-control" min="500" step="50" value="500" required>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-outline" onclick="closeModal('createAccountModal')">Cancel</button>
+          <button type="submit" class="btn btn-primary">Generate Account & Credit Funds</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Add Staff Modal -->
+  <div class="modal-overlay" id="addEmployeeModal">
+    <div class="modal-box">
+      <div class="modal-header">
+        <h3>Add Staff Member / Officer</h3>
+        <button class="modal-close-btn" onclick="closeModal('addEmployeeModal')">&times;</button>
+      </div>
+      <form onsubmit="handleAddEmployeeSubmit(event)">
+        <div class="modal-body">
+          <div class="form-group">
+            <label>Full Name *</label>
+            <input type="text" id="newEmpName" class="form-control" required placeholder="Staff Full Name">
+          </div>
+          <div class="form-group">
+            <label>Staff Email *</label>
+            <input type="email" id="newEmpEmail" class="form-control" required placeholder="staff@bank.com">
+          </div>
+          <div class="form-group">
+            <label>Phone *</label>
+            <input type="tel" id="newEmpPhone" class="form-control" required placeholder="+1-800-555-0199">
+          </div>
+          <div class="form-group">
+            <label>Role Assignment *</label>
+            <select id="newEmpRole" class="form-control" required>
+              <option value="employee">Branch Employee / Officer</option>
+              <option value="admin">System Administrator</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Initial Password *</label>
+            <input type="text" id="newEmpPassword" class="form-control" value="Employee@123" required>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-outline" onclick="closeModal('addEmployeeModal')">Cancel</button>
+          <button type="submit" class="btn btn-primary">Add Staff Account</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Select Account for Statement Modal -->
+  <div class="modal-overlay" id="statementPickerModal">
+    <div class="modal-box">
+      <div class="modal-header">
+        <h3>Generate Official Account Statement</h3>
+        <button class="modal-close-btn" onclick="closeModal('statementPickerModal')">&times;</button>
+      </div>
+      <div class="modal-body">
+        <div class="form-group">
+          <label>Select Bank Account</label>
+          <select id="statementAccSelect" class="form-control">
+            <!-- Populated via JS -->
+          </select>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-outline" onclick="closeModal('statementPickerModal')">Cancel</button>
+        <button type="button" class="btn btn-primary" onclick="proceedToStatement()">Open Statement View</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- JavaScript Modules -->
+  <script src="/static/js/api.js"></script>
+  <script src="/static/js/app.js"></script>
+</body>
+</html>
